@@ -7,9 +7,11 @@ using NodeCanvas.Tasks.Actions;
 using System.Linq;
 using ParadoxNotion.Serialization.FullSerializer;
 using System.Diagnostics.Tracing;
+using Unity.VisualScripting;
 
 public class Move : MonoBehaviour
 {
+    public GameObject model;
 
     public Rigidbody rb;
     public Vector3 localVel;
@@ -77,22 +79,22 @@ public class Move : MonoBehaviour
         if (Input.GetKey(KeyCode.A))
         {
             moveInput.x = -1;          
-            currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y * facingDir, buttonHeldTimer));
+            currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y, buttonHeldTimer));
         }
         if (Input.GetKey(KeyCode.D))
         {
             moveInput.x = 1;        
-            currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y * facingDir, buttonHeldTimer));
+            currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y, buttonHeldTimer));
         }
         if (Input.GetKey(KeyCode.W))
         {
             moveInput.y = 1;     
-            currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y * facingDir, buttonHeldTimer));
+            currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y, buttonHeldTimer));
         }
         if (Input.GetKey(KeyCode.S))
         {
             moveInput.y = -1;  
-            currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y * facingDir, buttonHeldTimer));
+            currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y, buttonHeldTimer));
         }
         if (moveInput == Vector2.zero)
         {
@@ -144,17 +146,28 @@ public class Move : MonoBehaviour
         }
 
         //checking for backdash
-        if (currentInput.x < 0)
+        if (currentInput.x < 0 && currentInput.z < 0.2)
         {
             if (inputHistory[29].x == 0 && inputHistory[29].z <= 0.18)
             {
-                if (inputHistory[28].x < 0 && inputHistory[28].z < 0.18)
+                if (inputHistory[28].x < 0 && inputHistory[28].z < 0.18 && currentState == "None" || currentState == "Run")
                 {
                     currentCoroutine = StartCoroutine(Backdash());
                 }
             }
         }
-       
+
+       /* if (currentInput.y < 0 && (currentState == "None" || currentState == "Crouch"))
+        {
+            Crouch();
+        }
+        else
+        {
+            currentState = "None";
+            transform.localScale = new Vector3(1, 1f, 1);
+        }*/
+
+
 
     }
    
@@ -167,8 +180,10 @@ public class Move : MonoBehaviour
         {
             localVel.x = moveInput.x * moveSpeed;
         }
-        rb.velocity = localVel;
 
+
+
+        rb.velocity = localVel;
         //facing direction
         if(facingDir == 1)
         {
@@ -195,6 +210,15 @@ public class Move : MonoBehaviour
         }
 
     }
+
+    void Crouch()
+    {
+        Debug.Log("crouch");
+        currentState = "Crouch";
+        model.transform.localScale = new Vector3 (1,0.5f,1);
+
+
+    }
     IEnumerator Backdash()
     {
         currentState = "Backdash";
@@ -204,7 +228,6 @@ public class Move : MonoBehaviour
         yield return new WaitForSecondsRealtime(backDashTime);
         rb.velocity = Vector3.zero;
         yield return new WaitForFixedUpdate();
-
         currentState = "None";
     }
 }
