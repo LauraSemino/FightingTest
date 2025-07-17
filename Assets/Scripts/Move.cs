@@ -35,6 +35,8 @@ public class Move : MonoBehaviour
     public Vector3 currentInput;
     public List<Vector3> inputHistory;
 
+    public GameObject enemyPlayer;
+
    
     // Start is called before the first frame update
     void Start()
@@ -186,14 +188,16 @@ public class Move : MonoBehaviour
 
         rb.velocity = localVel;
         //facing direction
-        if(facingDir == 1)
+        if(transform.position.x > enemyPlayer.transform.position.x && currentState != "Run")
         {
-          
+            facingDir = -1;
         }
-        if (facingDir == -1)
+        else if (transform.position.x < enemyPlayer.transform.position.x && currentState != "Run")
         {
+            facingDir = 1;
+        }
 
-        }
+
     }
 
     void Run()
@@ -217,7 +221,7 @@ public class Move : MonoBehaviour
         currentState = "Backdash";
         
         yield return new WaitForFixedUpdate();
-        rb.velocity = backDashSpeed*Vector3.left;
+        rb.velocity = backDashSpeed*Vector3.left*facingDir;
         yield return new WaitForSecondsRealtime(backDashTime);
         rb.velocity = Vector3.zero;
         yield return new WaitForFixedUpdate();
