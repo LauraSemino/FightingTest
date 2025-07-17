@@ -157,18 +157,19 @@ public class Move : MonoBehaviour
             }
         }
 
-       /* if (currentInput.y < 0 && (currentState == "None" || currentState == "Crouch"))
+       if (currentInput.y < 0 && (currentState == "None" || currentState == "Run"))
         {
-            Crouch();
+            currentState = "Crouch";
+            model.transform.localScale = new Vector3(1.5f, 0.75f, 1.5f);
+            model.transform.position = new Vector3(model.transform.position.x, 1.25f,model.transform.position.z);
         }
-        else
-        {
+
+        if(currentInput.y >= 0 && currentState == "Crouch") 
+        {            
+            model.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+            model.transform.position = new Vector3(model.transform.position.x, 2f, model.transform.position.z);
             currentState = "None";
-            transform.localScale = new Vector3(1, 1f, 1);
-        }*/
-
-
-
+        }
     }
    
 
@@ -211,14 +212,6 @@ public class Move : MonoBehaviour
 
     }
 
-    void Crouch()
-    {
-        Debug.Log("crouch");
-        currentState = "Crouch";
-        model.transform.localScale = new Vector3 (1,0.5f,1);
-
-
-    }
     IEnumerator Backdash()
     {
         currentState = "Backdash";
