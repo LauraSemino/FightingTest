@@ -43,6 +43,7 @@ public class Move : MonoBehaviour
 
     public GameObject enemyPlayer;
 
+    public string inputMode;
     
    
     // Start is called before the first frame update
@@ -57,50 +58,70 @@ public class Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        KeyCode up = KeyCode.W;
+        KeyCode down = KeyCode.S;
+        KeyCode left = KeyCode.A;
+        KeyCode right = KeyCode.D;
+
+        if (inputMode == "WASD")
+        {
+            up = KeyCode.W;
+            down = KeyCode.S;
+            left = KeyCode.A;
+            right = KeyCode.D;
+        }
+        if (inputMode == "Arrow")
+        {
+            up = KeyCode.UpArrow;
+            down = KeyCode.DownArrow;
+            left = KeyCode.LeftArrow;
+            right = KeyCode.RightArrow;
+        }
+
         //Debug.Log(moveSpeed);
         
         moveInput = Vector3.zero;
         lastInput = currentInput;
 
         buttonHeldTimer += Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(right))
         {
             buttonHeldTimer = 0;
             inputHistory.Add(lastInput);
         }
-        if (Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyDown(left))
         {
             buttonHeldTimer = 0;
             inputHistory.Add(lastInput);
         }
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(up))
         {
             buttonHeldTimer = 0;
             inputHistory.Add(lastInput);
         }
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(down))
         {
             buttonHeldTimer = 0;
             inputHistory.Add(lastInput);
         }
 
 
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(left))
         {
             moveInput.x = -1;          
             currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y, buttonHeldTimer));
         }
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(right))
         {
             moveInput.x = 1;        
             currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y, buttonHeldTimer));
         }
-        if (Input.GetKey(KeyCode.W))
+        if (Input.GetKey(up))
         {
             moveInput.y = 1;     
             currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y, buttonHeldTimer));
         }
-        if (Input.GetKey(KeyCode.S))
+        if (Input.GetKey(down))
         {
             moveInput.y = -1;  
             currentInput = (new Vector3(moveInput.x * facingDir, moveInput.y, buttonHeldTimer));
@@ -111,22 +132,22 @@ public class Move : MonoBehaviour
            
         }
 
-        if (Input.GetKeyUp(KeyCode.A))
+        if (Input.GetKeyUp(left))
         {
             inputHistory.Add(lastInput);          
             buttonHeldTimer = 0;
         }
-        if(Input.GetKeyUp(KeyCode.D))
+        if(Input.GetKeyUp(right))
         {
             inputHistory.Add(lastInput);
             buttonHeldTimer = 0;
         }
-        if(Input.GetKeyUp(KeyCode.W))
+        if(Input.GetKeyUp(up))
         {
             inputHistory.Add(lastInput);
             buttonHeldTimer = 0;
         }
-        if (Input.GetKeyUp(KeyCode.S))
+        if (Input.GetKeyUp(down))
         {
             inputHistory.Add(lastInput);
             buttonHeldTimer = 0;
@@ -150,7 +171,6 @@ public class Move : MonoBehaviour
         }
         if (currentState == "Run" && (currentInput.x <= 0 || currentInput.y < 0))
         {
-            
             currentState = "None";
         }
         if (currentState != "Run")
