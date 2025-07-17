@@ -8,6 +8,7 @@ using System.Linq;
 using ParadoxNotion.Serialization.FullSerializer;
 using System.Diagnostics.Tracing;
 using Unity.VisualScripting;
+using ParadoxNotion;
 
 public class Move : MonoBehaviour
 {
@@ -31,12 +32,18 @@ public class Move : MonoBehaviour
     public float backDashTime;
     public float backDashSpeed;
 
+    public float airSpeed;
+    public float jumpHeight;
+    bool doJump;
+    public bool isGrounded;
+
     Vector3 lastInput;
     public Vector3 currentInput;
     public List<Vector3> inputHistory;
 
     public GameObject enemyPlayer;
 
+    
    
     // Start is called before the first frame update
     void Start()
@@ -143,8 +150,12 @@ public class Move : MonoBehaviour
         }
         if (currentState == "Run" && (currentInput.x <= 0 || currentInput.y < 0))
         {
-            moveSpeed = walkSpeed;
+            
             currentState = "None";
+        }
+        if (currentState != "Run")
+        {
+            moveSpeed = walkSpeed;
         }
 
         //checking for backdash
@@ -152,25 +163,32 @@ public class Move : MonoBehaviour
         {
             if (inputHistory[29].x == 0 && inputHistory[29].z <= 0.18)
             {
-                if (inputHistory[28].x < 0 && inputHistory[28].z < 0.18 && currentState == "None" || currentState == "Run")
+                if (inputHistory[28].x < 0 && inputHistory[28].z < 0.18 && (currentState == "None" || currentState == "Run"))
                 {
                     currentCoroutine = StartCoroutine(Backdash());
                 }
             }
         }
 
-       if (currentInput.y < 0 && (currentState == "None" || currentState == "Run"))
+       //check for crouch
+       if (currentInput.y < 0 && (currentState == "None" || currentState == "Run" ))
         {
             currentState = "Crouch";
             model.transform.localScale = new Vector3(1.5f, 0.75f, 1.5f);
             model.transform.position = new Vector3(model.transform.position.x, 1.25f,model.transform.position.z);
         }
 
+       //check for uncrouch
         if(currentInput.y >= 0 && currentState == "Crouch") 
         {            
             model.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
             model.transform.position = new Vector3(model.transform.position.x, 2f, model.transform.position.z);
             currentState = "None";
+        }
+        //check for jump
+        if (currentInput.y > 0 && (currentState == "None" || currentState == "Run"))
+        {
+            doJump = true;
         }
     }
    
@@ -184,9 +202,19 @@ public class Move : MonoBehaviour
             localVel.x = moveInput.x * moveSpeed;
         }
 
+        //jump
+        if (doJump && isGrounded == true)
+        {
+            localVel.y = jumpHeight;
+            doJump = false;
+        }
+        else if (doJump == true && isGrounded == false)
+        {
+            doJump = false;
+        }
 
 
-        rb.velocity = localVel;
+
         //facing direction
         if(transform.position.x > enemyPlayer.transform.position.x && currentState != "Run")
         {
@@ -197,7 +225,7 @@ public class Move : MonoBehaviour
             facingDir = 1;
         }
 
-
+        rb.velocity = localVel;
     }
 
     void Run()
@@ -215,7 +243,7 @@ public class Move : MonoBehaviour
         }
 
     }
-
+    
     IEnumerator Backdash()
     {
         currentState = "Backdash";
@@ -226,5 +254,30 @@ public class Move : MonoBehaviour
         rb.velocity = Vector3.zero;
         yield return new WaitForFixedUpdate();
         currentState = "None";
+    }
+
+
+    void OnCollisionEnter(Collision ground)
+    {
+        if (ground.gameObject.layer == 3)
+        {          
+            currentState = "None";
+        }
+    }
+    void OnCollisionStay(Collision ground)
+    {
+        if (ground.gameObject.layer == 3)
+        {
+            isGrounded = true;
+            
+        }
+    }
+    void OnCollisionExit(Collision ground)
+    {
+        if (ground.gameObject.layer == 3)
+        {
+            isGrounded = false;
+            currentState = "Jump";
+        }
     }
 }
