@@ -23,11 +23,11 @@ public class CharBase : MonoBehaviour
 
     private void FixedUpdate()
     {
-        localVel = rb.velocity;
+        localVel = rb.linearVelocity;
 
         
 
 
-        rb.velocity = localVel;
+        rb.linearVelocity = localVel;
     }
 }

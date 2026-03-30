@@ -216,7 +216,7 @@ public class Move : MonoBehaviour
     private void FixedUpdate()
     {
 
-        localVel = rb.velocity;
+        localVel = rb.linearVelocity;
         if (currentState == "None" || currentState == "Run")
         {
             localVel.x = moveInput.x * moveSpeed;
@@ -245,7 +245,7 @@ public class Move : MonoBehaviour
             facingDir = 1;
         }
 
-        rb.velocity = localVel;
+        rb.linearVelocity = localVel;
     }
 
     void Run()
@@ -269,9 +269,9 @@ public class Move : MonoBehaviour
         currentState = "Backdash";
         
         yield return new WaitForFixedUpdate();
-        rb.velocity = backDashSpeed*Vector3.left*facingDir;
+        rb.linearVelocity = backDashSpeed*Vector3.left*facingDir;
         yield return new WaitForSecondsRealtime(backDashTime);
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
         yield return new WaitForFixedUpdate();
         currentState = "None";
     }
